@@ -1,77 +1,77 @@
 name: Build and Push
 
 on:
-    push:
-        branches: [main]
+  push:
+    branches: [main]
 
 env:
-    REGISTRY: ghcr.io
-    IMAGE_NAME: teehit101/guestbook
+  REGISTRY: ghcr.io
+  IMAGE_NAME: teehit101/guestbook
 
 jobs:
-    build-and-push:
-        runs-on: ubuntu-latest
-        permissions:
-            contents: read
-            packages: write
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Log in to the Container registry
-              uses: docker/login-action@v3
-              with:
-                  registry: ${{ env.REGISTRY }}
-                  username: ${{ github.actor }}
-                  password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-            # Bygg Backend
-            - name: Build and push Backend
-              uses: docker/build-push-action@v5
-              with:
-                  context: ./backend
-                  push: true
-                  tags: |
-                      ${{ env.REGISTRY }}/teehit101/guestbook-backend:${{ github.sha }}
-                      ${{ env.REGISTRY }}/teehit101/guestbook-backend:latest
+      # Bygg Backend
+      - name: Build and push Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/teehit101/guestbook-backend:${{ github.sha }}
+            ${{ env.REGISTRY }}/teehit101/guestbook-backend:latest
 
-            # Bygg Frontend
-            - name: Build and push Frontend
-              uses: docker/build-push-action@v5
-              with:
-                  context: ./frontend
-                  push: true
-                  tags: |
-                      ${{ env.REGISTRY }}/teehit101/guestbook-frontend:${{ github.sha }}
-                      ${{ env.REGISTRY }}/teehit101/guestbook-frontend:latest
+      # Bygg Frontend
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/teehit101/guestbook-frontend:${{ github.sha }}
+            ${{ env.REGISTRY }}/teehit101/guestbook-frontend:latest
 
-            # ---  UPPDATERAR ANDRA REPO ---
-            - name: Update Config Repo
-              run: |
-                  # Konfigurera Git-användare för roboten
-                  git config --global user.email "teehit-bot@teehit.com"
-                  git config --global user.name "TeeHit Bot"
+      # ---  UPPDATERAR ANDRA REPO ---
+      - name: Update Config Repo
+        run: |
+          # Konfigurera Git-användare för roboten
+          git config --global user.email "teehit-bot@teehit.com"
+          git config --global user.name "TeeHit Bot"
 
-                  # 1. Klona CONFIG-repo (Deploy-repot) med min Token
-                  git clone https://${{ secrets.GITOPS_PAT }}@github.com/TeeHit101/guestbook-argoCD.git config-repo
+          # 1. Klona CONFIG-repo (Deploy-repot) med min Token
+          git clone https://${{ secrets.GITOPS_PAT }}@github.com/TeeHit101/guestbook-argoCD.git config-repo
 
-                  cd config-repo
+          cd config-repo
 
-                  # 2. Använd 'sed' för att byta ut image-taggen i YAML-filer
+          # 2. Använd 'sed' för att byta ut image-taggen i YAML-filer
 
-                  # Uppdatera Backend Deployment
-                  sed -i 's|guestbook-backend:.*|guestbook-backend:${{ github.sha }}|g' openshif-yaml/backend-deployment.yaml
+          # Uppdatera Backend Deployment
+          sed -i 's|guestbook-backend:.*|guestbook-backend:${{ github.sha }}|g' openshif-yaml/backend-deploy.yaml
 
-                  # Uppdatera Frontend Deployment
-                  sed -i 's|guestbook-frontend:.*|guestbook-frontend:${{ github.sha }}|g' openshif-yaml/frontend-deployment.yaml
+          # Uppdatera Frontend Deployment
+          sed -i 's|guestbook-frontend:.*|guestbook-frontend:${{ github.sha }}|g' openshif-yaml/frontend-deploy.yaml
 
-                  # 3. Kolla om något ändrades, committa och pusha
-                  if [[ -n $(git status -s) ]]; then
-                    git add .
-                    git commit -m "CI: Update image tag to ${{ github.sha }}"
-                    git push
-                    echo "Successfully updated deployment repo!"
-                  else
-                    echo "No changes to commit."
-                  fi
+          # 3. Kolla om något ändrades, committa och pusha
+          if [[ -n $(git status -s) ]]; then
+            git add .
+            git commit -m "CI: Update image tag to ${{ github.sha }}"
+            git push
+            echo "Successfully updated deployment repo!"
+          else
+            echo "No changes to commit."
+          fi
