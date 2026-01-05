@@ -61,10 +61,10 @@ jobs:
           # 2. Använd 'sed' för att byta ut image-taggen i YAML-filer
 
           # Uppdatera Backend Deployment
-          sed -i 's|guestbook-backend:.*|guestbook-backend:${{ github.sha }}|g' openshif-yaml/backend-deploy.yaml
+          sed -i 's|guestbook-backend:.*|guestbook-backend:${{ github.sha }}|g' openshif-yaml/backend-deploy.yml
 
           # Uppdatera Frontend Deployment
-          sed -i 's|guestbook-frontend:.*|guestbook-frontend:${{ github.sha }}|g' openshif-yaml/frontend-deploy.yaml
+          sed -i 's|guestbook-frontend:.*|guestbook-frontend:${{ github.sha }}|g' openshif-yaml/frontend-deploy.yml
 
           # 3. Kolla om något ändrades, committa och pusha
           if [[ -n $(git status -s) ]]; then
