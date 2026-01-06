@@ -6,9 +6,11 @@ Detta repo är den första delen i vår GitOps-kedja och ansvarar för Continuou
 
 Struktur
 
-.
+
 ├── .github/workflows/   # GitHub Actions (CI-pipeline)
+
 ├── backend/             # Backend-kod (Go) + Dockerfile
+
 └── frontend/            # Frontend-kod (HTML/Nginx) + Dockerfile
 
 
