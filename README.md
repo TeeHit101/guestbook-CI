@@ -42,4 +42,4 @@ Detta repo innehåller ingen Kubernetes-konfiguration.
 All deployment-konfiguration (YAML, Services, PVC) hanteras i vårt separata config-repo:
 guestbook-argoCD
 
-Detta projekt är en del av kursen Containerteknologi (DevOps24).
+Detta projekt är en del av kursen Containerteknologi och CI/CD Verktyg (DevOps24).
